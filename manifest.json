@@ -1,0 +1,34 @@
+{
+    "manifest_version": 3,
+    "name": "Reading time",
+    "description": "This extension runs Python code.",
+    "version": "1.0",
+    "action": {
+        "default_icon": "img/icon.png",
+        "default_popup": "popup/popup.html"
+    },
+    "icons": {
+        "16": "img/icon.png",
+        "32": "img/icon.png",
+        "48": "img/icon.png",
+        "128": "img/icon.png"
+    },
+    "content_scripts": [
+        {
+            "js": [
+                "src/scratch.js"
+            ],
+            "matches": [
+                "https://developer.chrome.com/docs/extensions/*",
+                "https://developer.chrome.com/docs/webstore/*",
+                "https://scratch.mit.edu/search/*"
+            ]
+        }
+    ],
+    "permissions": [
+        "activeTab"
+    ],
+    "host_permissions": [
+        "https://ajax.googleapis.com/"
+    ]
+}
