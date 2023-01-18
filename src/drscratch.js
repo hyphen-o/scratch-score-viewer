@@ -1,8 +1,7 @@
 // 引用元リポジトリ : https://github.com/AngelaVargas/drscratchv3
 // Analyzer of projects sb3, the new version Scratch 3.0
-import * as fs from 'fs'
-import square from '../projects/Square.json' assert { type: "json" }
-'use strict'
+import square from '../projects/Square.json' assert { type: 'json' }
+;('use strict')
 
 export class Mastery {
   constructor() {
@@ -23,37 +22,34 @@ export class Mastery {
   process() {
     const data = square
     for (const key in data) {
-            if (key === 'targets') {
-              for (const dicc in data[key]){
-                const value = data[key][dicc]
-                for (const dicc_key in value){
-                  if (dicc_key === 'blocks' ) {
-                      const dicc_value = value[dicc_key]
-                    for (const blocks in dicc_value) {
-                      const blocks_value = dicc_value[blocks]
-                      if (typeof blocks_value === 'object') {
-
-                        this.total_blocks.push(blocks_value)
-                      }
-                    }
-                  }
+      if (key === 'targets') {
+        for (const dicc in data[key]) {
+          const value = data[key][dicc]
+          for (const dicc_key in value) {
+            if (dicc_key === 'blocks') {
+              const dicc_value = value[dicc_key]
+              for (const blocks in dicc_value) {
+                const blocks_value = dicc_value[blocks]
+                if (typeof blocks_value === 'object') {
+                  this.total_blocks.push(blocks_value)
                 }
               }
             }
+          }
+        }
+      }
     }
 
     for (let i = 0; i < this.total_blocks.length; i++) {
       const block = this.total_blocks[i]
       for (const key in block) {
         if (key === 'opcode') {
-
           if (!this.blocks_dicc[block[key]]) this.blocks_dicc[block[key]] = 1
           else this.blocks_dicc[block[key]]++
         }
       }
-      }
-    this.analyze();
-
+    }
+    this.analyze()
   }
 
   analyze() {
@@ -66,21 +62,19 @@ export class Mastery {
     this.parallelism()
     this.ct_score()
     this.total_score()
-
   }
 
   ct_score() {
-
-    
     let ctscore = 0
     for (let i = 0; i < this.concepts.length; i++) {
-        const concept = this.concepts[i]
-          if (!this.mastery_dicc[concept]['MaxScore']) this.mastery_dicc[concept]['MaxScore'] = 0
-          ctscore += this.mastery_dicc[concept]['MaxScore']
-          this.mastery_dicc['CTScore'] = ctscore
-        }
-      }
-        
+      const concept = this.concepts[i]
+      if (!this.mastery_dicc[concept]['MaxScore'])
+        this.mastery_dicc[concept]['MaxScore'] = 0
+      ctscore += this.mastery_dicc[concept]['MaxScore']
+      this.mastery_dicc['CTScore'] = ctscore
+    }
+  }
+
   total_score() {
     let total = 0
 
@@ -90,7 +84,7 @@ export class Mastery {
         if (this.mastery_dicc[concept][score]) total += score
       }
     }
-    console.log(this.mastery_dicc);
+    console.log(this.mastery_dicc)
     this.mastery_dicc['Total'] = total
   }
 
@@ -284,6 +278,7 @@ export class Mastery {
       'data_itemoflist',
     ]
 
+    // 3点の計測処理
     for (const item in lists) {
       if (this.blocks_dicc[item]) {
         this.mastery_dicc['DataRepresentation'][3] = true
@@ -291,6 +286,7 @@ export class Mastery {
       }
     }
 
+    // 2点の計測処理
     if (
       this.blocks_dicc['data_changevariableby'] ||
       this.blocks_dicc['data_setvariableto']
@@ -298,6 +294,7 @@ export class Mastery {
       this.mastery_dicc['DataRepresentation'][2] = true
     }
 
+    // 1点の計測処理
     for (const modifier in modifiers) {
       if (this.blocks_dicc[modifier]) {
         this.mastery_dicc['DataRepresentation'][1] = true
@@ -317,19 +314,22 @@ export class Mastery {
   }
 
   check_mouse() {
-     for (let i = 0; i < this.total_blocks.length; i++) {
+    for (let i = 0; i < this.total_blocks.length; i++) {
       const block = this.total_blocks[i]
-      for(const key in block) {
-        if(key === 'fields') {
-          for(const mouse_key in block) {
-            if((mouse_key === 'TO' || mouse_key === 'TOUCHINGOBJECTMENU') && block[mouse_key][0] === '_mouse_') {
-              return 1;
+      for (const key in block) {
+        if (key === 'fields') {
+          for (const mouse_key in block) {
+            if (
+              (mouse_key === 'TO' || mouse_key === 'TOUCHINGOBJECTMENU') &&
+              block[mouse_key][0] === '_mouse_'
+            ) {
+              return 1
             }
           }
         }
       }
     }
-    return 0;
+    return 0
   }
 
   user_interactivity() {
@@ -340,15 +340,23 @@ export class Mastery {
     }
 
     const proficiency = [
-      'videoSensing_videoToggle', 'videoSensing_videoOn', 'videoSensing_whenMotionGreaterThan',
-      'videoSensing_setVideoTransparency', 'sensing_loudness'
+      'videoSensing_videoToggle',
+      'videoSensing_videoOn',
+      'videoSensing_whenMotionGreaterThan',
+      'videoSensing_setVideoTransparency',
+      'sensing_loudness',
     ]
 
     const developing = [
-      'event_whenkeypressed', 'event_whenthisspriteclicked', 'sensing_mousedown', 
-      'sensing_keypressed', 'sensing_askandwait', 'sensing_answer'
+      'event_whenkeypressed',
+      'event_whenthisspriteclicked',
+      'sensing_mousedown',
+      'sensing_keypressed',
+      'sensing_askandwait',
+      'sensing_answer',
     ]
 
+    // 3点の計測処理
     for (const item in proficiency) {
       if (this.blocks_dicc[item]) {
         this.mastery_dicc['UserInteractivity'][3] = true
@@ -356,6 +364,7 @@ export class Mastery {
       }
     }
 
+    // 2点の計測処理
     for (const item in developing) {
       if (this.blocks_dicc[item]) {
         this.mastery_dicc['UserInteractivity'][2] = true
@@ -363,27 +372,24 @@ export class Mastery {
       }
     }
 
+    // 2点の計測処理
     if (this.mastery_dicc['UserInteractivity'][2] == false) {
-
       if (this.blocks_dicc['motion_goto_menu']) {
-
-        if (this.check_mouse() ===1) {
-
+        if (this.check_mouse() === 1) {
           this.mastery_dicc['UserInteractivity'][2] = true
         } else if (this.blocks_dicc['sensing_touchingobjectmenu']) {
-
           if (this.check_mouse() == 1) {
-
             this.mastery_dicc['UserInteractivity'][2] = true
           }
         }
-        }
       }
+    }
 
+    // 1点の計測処理
     if (this.blocks_dicc['event_whenflagclicked']) {
       this.mastery_dicc['UserInteractivity'][1] = true
     }
-      
+
     // 最高点数の計測処理
     let max_score = 0
     for (let i = 3; i >= 0; i--) {
@@ -407,33 +413,30 @@ export class Mastery {
         const var_list = new Set(dict_parall['BROADCAST_OPTION'])
         for (const varr in var_list) {
           if (dict_parall['BROADCAST_OPTION'].count(varr) > 1) {
-              this.mastery_dicc['Parallelism'][3] = true
+            this.mastery_dicc['Parallelism'][3] = true
           }
         }
       }
-    }
-    else if (this.blocks_dicc['event_whenbackdropswitchesto'] > 1) {
+    } else if (this.blocks_dicc['event_whenbackdropswitchesto'] > 1) {
       if (dict_parall['BACKDROP']) {
         const var_list = new Set(dict_parall['BACKDROP'])
         for (const varr in var_list) {
           if (dict_parall['BACKDROP'].count(varr) > 1) {
-              this.mastery_dicc['Parallelism'][3] = true
+            this.mastery_dicc['Parallelism'][3] = true
           }
         }
       }
-    }
-    else if (this.blocks_dicc['event_whengreaterthan'] > 1) {
+    } else if (this.blocks_dicc['event_whengreaterthan'] > 1) {
       if (dict_parall['WHENGREATERTHANMENU']) {
         const var_list = new Set(dict_parall['WHENGREATERTHANMENU'])
         for (const varr in var_list) {
           if (dict_parall['WHENGREATERTHANMENU'].count(varr) > 1) {
-              this.mastery_dicc['Parallelism'][3] = true
+            this.mastery_dicc['Parallelism'][3] = true
           }
         }
       }
-    }
-    else if (this.blocks_dicc['videoSensing_whenMotionGreaterThan'] > 1) {
-            this.mastery_dicc['Parallelism'][3] = true
+    } else if (this.blocks_dicc['videoSensing_whenMotionGreaterThan'] > 1) {
+      this.mastery_dicc['Parallelism'][3] = true
     }
     // 2点の計測処理
     if (this.blocks_dicc['event_whenkeypressed'] > 1) {
@@ -441,7 +444,7 @@ export class Mastery {
         const var_list = new Set(dict_parall['KEY_OPTION'])
         for (const varr in var_list) {
           if (dict_parall['KEY_OPTION'].count(varr) > 1) {
-              this.mastery_dicc['Parallelism'][3] = true
+            this.mastery_dicc['Parallelism'][2] = true
           }
         }
       }
