@@ -1,10 +1,9 @@
 // 引用元リポジトリ : https://github.com/AngelaVargas/drscratchv3
 // Analyzer of projects sb3, the new version Scratch 3.0
-import square from '../projects/Square.json' assert { type: 'json' }
-;('use strict')
+('use strict')
 
 export class Mastery {
-  constructor() {
+  constructor(json_data) {
     this.mastery_dicc = {}
     this.total_blocks = []
     this.blocks_dicc = {}
@@ -17,10 +16,11 @@ export class Mastery {
       'UserInteractivity',
       'DataRepresentation',
     ]
+    this.json_data = json_data
   }
 
   process() {
-    const data = square
+    const data = this.json_data
     for (const key in data) {
       if (key === 'targets') {
         for (const dicc in data[key]) {
