@@ -1,17 +1,17 @@
 {
     "manifest_version": 3,
-    "name": "Reading time",
-    "description": "This extension runs Python code.",
+    "name": "CT-indicator",
+    "description": "scratch上で作品検索した時に各作品のCTスコアが可視化される拡張機能",
     "version": "1.0",
     "action": {
         "default_icon": "img/icon.png",
         "default_popup": "popup/popup.html"
     },
     "icons": {
-        "16": "img/icon.png",
-        "32": "img/icon.png",
-        "48": "img/icon.png",
-        "128": "img/icon.png"
+        "16": "img/icon16.png",
+        "32": "img/icon32.png",
+        "48": "img/icon48.png",
+        "128": "img/icon128.png"
     },
     "content_scripts": [
         {

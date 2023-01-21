@@ -1,7 +1,9 @@
+var thumbnail_project = document.getElementsByClassName("thumbnail-creator");
 const thumbnail = document.getElementsByClassName("thumbnail-image");
-const heading = document.querySelector("h1");
+const selector = document.getElementsByClassName("form-control");
+const option = document.querySelector("#frc-sort-1088 > option:nth-child(1)")
 
-if(thumbnail) {
+const getCT = () => {
     for(let i = 0; i < thumbnail.length; i++) {
         const project_id = thumbnail[i].href.replace(/[^0-9]/g, '');
 
@@ -19,17 +21,22 @@ if(thumbnail) {
                 const mastery = new Mastery(hash_data)
                 mastery.process();
 
-                const p = document.createElement("p")
-                p.innerText = `id: ${project_id} CT_SCORE: ${mastery.mastery_dicc['CTScore']}`
-                heading.insertAdjacentElement("afterend", p);
+                const score = document.createElement("h4")
+                score.innerText = `CTスコア: ${mastery.mastery_dicc['CTScore']}`
+                score.style.color = "#0fbd8c"
+
+                thumbnail_project[i].insertAdjacentElement("afterend", score);
             }, false)
-
         }, false);
-
-
     }
 }
 
+if(thumbnail) {
+    const new_option = document.createElement("option")
+    new_option.innerText = 'CTスコア'
+    selector[0].insertBefore(new_option, option)
+    getCT()
+}
 
 class Mastery {
     constructor(json_data) {
