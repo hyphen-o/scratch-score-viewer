@@ -1,4 +1,5 @@
-var thumbnail_project = document.getElementsByClassName("thumbnail-creator");
+var thumbnail_creator = document.getElementsByClassName("thumbnail-creator");
+var thumbnail_project = document.getElementsByClassName("thumbnail project");
 const thumbnail = document.getElementsByClassName("thumbnail-image");
 const selector = document.getElementsByClassName("form-control");
 const option = document.querySelector("#frc-sort-1088 > option:nth-child(1)")
@@ -21,11 +22,12 @@ const getCT = () => {
                 const mastery = new Mastery(hash_data)
                 mastery.process();
 
-                const score = document.createElement("h4")
+                const score = document.createElement("a")
                 score.innerText = `CTスコア: ${mastery.mastery_dicc['CTScore']}`
                 score.style.color = "#0fbd8c"
-
-                thumbnail_project[i].insertAdjacentElement("afterend", score);
+                // score.style.fontSize = "12px"
+                thumbnail_project[i].style.height = "223px";
+                thumbnail_creator[i].insertAdjacentElement("afterend", score);
             }, false)
         }, false);
     }
