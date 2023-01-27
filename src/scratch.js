@@ -16,9 +16,10 @@ const createErrorElement = (index) => {
 }
 
 //CTスコアを表示するHTML要素を作成・表示する関数
-const createCTElement = (index) => {
+const createCTElement = (index, hash_data) => {
     const mastery = new Mastery(hash_data)
     const [isAvailable, ctscore] = mastery.process();
+    console.log(isAvailable);
     if(isAvailable) {
       const score = document.createElement("a")
       score.className = 'ctscore';
@@ -36,20 +37,25 @@ const indicateCT = () => {
     for(let i = 0; i < thumbnail.length; i++) {
         const project_id = thumbnail[i].href.replace(/[^0-9]/g, '');
         const req = new XMLHttpRequest();
-        req.open("GET", `https://api.scratch.mit.edu/projects/${project_id}`);
-        req.send();
-        req.addEventListener("load", function(){
+        let hash_data
+        if(thumbnail_title[i].childElementCount === 2) {
+          req.open("GET", `https://api.scratch.mit.edu/projects/${project_id}`);
+          req.send();
+          req.addEventListener("load", function(){
             hash_json = JSON.parse(req.response)
             const req2 = new XMLHttpRequest()
             req2.open("GET", `https://projects.scratch.mit.edu/${project_id}?token=${hash_json['project_token']}`)
             req2.send()
             req2.addEventListener("load", function() {
-                try {
-                  hash_data = JSON.parse(req2.response)
-                } catch {if(thumbnail_title[i].childElementCount === 2) createErrorElement(i)}
-                if(thumbnail_title[i].childElementCount === 2) createCTElement(i);
+              try {
+                hash_data = JSON.parse(req2.response)
+              } catch (error){
+                if(thumbnail_title[i].childElementCount === 2) createErrorElement(i)
+              }
+              createCTElement(i, hash_data);
             }, false)
-        }, false);
+          }, false);
+        }
     }
 }
 
