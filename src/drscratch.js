@@ -21,6 +21,9 @@ export class Mastery {
 
   process() {
     const data = this.json_data
+
+    if ('variables' in data) return false
+
     for (const key in data) {
       if (key === 'targets') {
         for (const dicc in data[key]) {
@@ -50,6 +53,7 @@ export class Mastery {
       }
     }
     this.analyze()
+    return true
   }
 
   analyze() {
@@ -93,11 +97,11 @@ export class Mastery {
     const operations = ['operator_and', 'operator_or', 'operator_not']
 
     // 3点の計測処理
-    for (const operation in operations) {
+    operations.forEach((operation) => {
       if (this.blocks_dicc[operation]) {
         this.mastery_dicc['Logic'][3] = true
       }
-    }
+    })   
 
     // 2点の計測処理
     if (this.blocks_dicc['control_if_else']) {
@@ -279,12 +283,11 @@ export class Mastery {
     ]
 
     // 3点の計測処理
-    for (const item in lists) {
+    lists.forEach((item) => {
       if (this.blocks_dicc[item]) {
         this.mastery_dicc['DataRepresentation'][3] = true
-        break
       }
-    }
+    })
 
     // 2点の計測処理
     if (
@@ -295,11 +298,11 @@ export class Mastery {
     }
 
     // 1点の計測処理
-    for (const modifier in modifiers) {
+    modifiers.forEach((modifier) => {
       if (this.blocks_dicc[modifier]) {
         this.mastery_dicc['DataRepresentation'][1] = true
       }
-    }
+    })
 
     // 最高点数の計測処理
     let max_score = 0
@@ -357,20 +360,18 @@ export class Mastery {
     ]
 
     // 3点の計測処理
-    for (const item in proficiency) {
+    proficiency.forEach((item) => {
       if (this.blocks_dicc[item]) {
         this.mastery_dicc['UserInteractivity'][3] = true
-        break
       }
-    }
+    })
 
     // 2点の計測処理
-    for (const item in developing) {
+    developing.forEach((item) => {
       if (this.blocks_dicc[item]) {
         this.mastery_dicc['UserInteractivity'][2] = true
-        break
       }
-    }
+    })
 
     // 2点の計測処理
     if (this.mastery_dicc['UserInteractivity'][2] == false) {
@@ -411,46 +412,60 @@ export class Mastery {
     if (this.blocks_dicc['event_whenbroadcastreceived'] > 1) {
       if (dict_parall['BROADCAST_OPTION']) {
         const var_list = new Set(dict_parall['BROADCAST_OPTION'])
-        for (const varr in var_list) {
-          if (dict_parall['BROADCAST_OPTION'].count(varr) > 1) {
-            this.mastery_dicc['Parallelism'][3] = true
-          }
-        }
+        let count = 0
+        var_list.forEach((varr) => {
+          dict_parall['BROADCAST_OPTION'].forEach((key) => {
+            if (key === varr) count++
+          })
+        })
+        if(count > 1) this.mastery_dicc['Parallelism'][3] = true
       }
     } else if (this.blocks_dicc['event_whenbackdropswitchesto'] > 1) {
       if (dict_parall['BACKDROP']) {
         const var_list = new Set(dict_parall['BACKDROP'])
-        for (const varr in var_list) {
-          if (dict_parall['BACKDROP'].count(varr) > 1) {
-            this.mastery_dicc['Parallelism'][3] = true
-          }
-        }
+        let count = 0
+        var_list.forEach((varr) => {
+          dict_parall['BACKDROP'].forEach((key) => {
+            if (key === varr) count++
+          })
+        })
+        if(count > 1) this.mastery_dicc['Parallelism'][3] = true
       }
     } else if (this.blocks_dicc['event_whengreaterthan'] > 1) {
       if (dict_parall['WHENGREATERTHANMENU']) {
         const var_list = new Set(dict_parall['WHENGREATERTHANMENU'])
-        for (const varr in var_list) {
-          if (dict_parall['WHENGREATERTHANMENU'].count(varr) > 1) {
-            this.mastery_dicc['Parallelism'][3] = true
-          }
-        }
+        let count = 0
+        var_list.forEach((varr) => {
+          dict_parall['WHENGREATERTHANMENU'].forEach((key) => {
+            if (key === varr) count++
+          })
+        })
+        if(count > 1) this.mastery_dicc['Parallelism'][3] = true
       }
     } else if (this.blocks_dicc['videoSensing_whenMotionGreaterThan'] > 1) {
       this.mastery_dicc['Parallelism'][3] = true
     }
+
+
     // 2点の計測処理
     if (this.blocks_dicc['event_whenkeypressed'] > 1) {
+      console.log(dict_parall['KEY_OPTION'])
       if (dict_parall['KEY_OPTION']) {
         const var_list = new Set(dict_parall['KEY_OPTION'])
-        for (const varr in var_list) {
-          if (dict_parall['KEY_OPTION'].count(varr) > 1) {
-            this.mastery_dicc['Parallelism'][2] = true
-          }
-        }
+        let count = 0
+        var_list.forEach((varr) => {
+          dict_parall['KEY_OPTION'].forEach((key) => {
+            if (key === varr) count++
+          })
+        })
+        if(count > 1) this.mastery_dicc['Parallelism'][2] = true
       }
     }
 
     // 1点の計測処理
+    if (this.blocks_dicc['event_whenflagclicked'] > 1) {
+      this.mastery_dicc['Parallelism'][1] = true
+    }
 
     // 最高点数の計測処理
 
