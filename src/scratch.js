@@ -6,16 +6,29 @@ const selector = document.getElementsByClassName("form-control");
 const option = document.querySelector("#frc-sort-1088 > option:nth-child(1)")
 const button = document.querySelector("#projectBox > button")
 
-//CTスコアを表示するHTML要素を作成する関数
+//対応していない作品のHTML要素を作成・表示する関数
+const createErrorElement = (index) => {
+  const score = document.createElement("a")
+  score.innerText = "Not supported"
+  score.style.color = "#FF9933"
+  thumbnail_project[index].style.height = "223px";
+  thumbnail_creator[index].insertAdjacentElement("afterend", score)
+}
+
+//CTスコアを表示するHTML要素を作成・表示する関数
 const createCTElement = (index) => {
     const mastery = new Mastery(hash_data)
     const [isAvailable, ctscore] = mastery.process();
-    const score = document.createElement("a")
-    score.className = 'ctscore';
-    score.innerText = isAvailable ? "CTScore: " + ctscore : "Not supported";
-    score.style.color = isAvailable ? "#0fbd8c" : "#FF9933"
-    thumbnail_project[index].style.height = "223px";
-    thumbnail_creator[index].insertAdjacentElement("afterend", score);
+    if(isAvailable) {
+      const score = document.createElement("a")
+      score.className = 'ctscore';
+      score.innerText = "CTScore: " + ctscore;
+      score.style.color = "#0fbd8c"
+      thumbnail_project[index].style.height = "223px";
+      thumbnail_creator[index].insertAdjacentElement("afterend", score);
+    } else {
+      if(thumbnail_title[index].childElementCount === 2) createErrorElement(index)
+    }
  }
 
 //CTスコアを表示する関数
@@ -31,7 +44,9 @@ const indicateCT = () => {
             req2.open("GET", `https://projects.scratch.mit.edu/${project_id}?token=${hash_json['project_token']}`)
             req2.send()
             req2.addEventListener("load", function() {
-                hash_data = JSON.parse(req2.response)
+                try {
+                  hash_data = JSON.parse(req2.response)
+                } catch {if(thumbnail_title[i].childElementCount === 2) createErrorElement(i)}
                 if(thumbnail_title[i].childElementCount === 2) createCTElement(i);
             }, false)
         }, false);
@@ -51,6 +66,7 @@ if(thumbnail) {
     indicateCT()
 }
 
+//Dr.Scratch
 class Mastery {
   constructor(json_data) {
     this.mastery_dicc = {}
@@ -71,7 +87,7 @@ class Mastery {
   process() {
     const data = this.json_data
 
-    if ('variables' in data) return false
+    if ('variables' in data) return ([false])
 
     for (const key in data) {
       if (key === 'targets') {

@@ -18,6 +18,7 @@
             "js": [
                 "src/scratch.js"
             ],
+            "type": "module",
             "matches": [
                 "https://developer.chrome.com/docs/extensions/*",
                 "https://developer.chrome.com/docs/webstore/*",

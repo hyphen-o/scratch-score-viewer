@@ -53,7 +53,7 @@ export class Mastery {
       }
     }
     this.analyze()
-    return true
+    return ([true, this.mastery_dicc['CTScore']])
   }
 
   analyze() {
