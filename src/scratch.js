@@ -1,58 +1,54 @@
-var thumbnail_creator = document.getElementsByClassName("thumbnail-creator");
-var thumbnail_project = document.getElementsByClassName("thumbnail project");
+const thumbnail_creator = document.getElementsByClassName("thumbnail-creator");
+const thumbnail_project = document.getElementsByClassName("thumbnail project");
+const thumbnail_title = document.getElementsByClassName("thumbnail-title");
 const thumbnail = document.getElementsByClassName("thumbnail-image");
 const selector = document.getElementsByClassName("form-control");
-const ctscore = document.getElementsByClassName("ctscore");
 const option = document.querySelector("#frc-sort-1088 > option:nth-child(1)")
 const button = document.querySelector("#projectBox > button")
 
-const sleep = (waitMsec) => {
-  var startMsec = new Date();
- 
-  // 指定ミリ秒間だけループさせる（CPUは常にビジー状態）
-  while (new Date() - startMsec < waitMsec);
-}
+//CTスコアを表示するHTML要素を作成する関数
+const createCTElement = (index) => {
+    const mastery = new Mastery(hash_data)
+    const [isAvailable, ctscore] = mastery.process();
+    const score = document.createElement("a")
+    score.className = 'ctscore';
+    score.innerText = isAvailable ? "CTScore: " + ctscore : "Not supported";
+    score.style.color = isAvailable ? "#0fbd8c" : "#FF9933"
+    thumbnail_project[index].style.height = "223px";
+    thumbnail_creator[index].insertAdjacentElement("afterend", score);
+ }
 
-const getCT = () => {
+//CTスコアを表示する関数
+const indicateCT = () => {
     for(let i = 0; i < thumbnail.length; i++) {
         const project_id = thumbnail[i].href.replace(/[^0-9]/g, '');
-
         const req = new XMLHttpRequest();
         req.open("GET", `https://api.scratch.mit.edu/projects/${project_id}`);
         req.send();
-        req.addEventListener("load", function(){ // loadイベントを登録します。
+        req.addEventListener("load", function(){
             hash_json = JSON.parse(req.response)
-            
             const req2 = new XMLHttpRequest()
             req2.open("GET", `https://projects.scratch.mit.edu/${project_id}?token=${hash_json['project_token']}`)
             req2.send()
             req2.addEventListener("load", function() {
                 hash_data = JSON.parse(req2.response)
-                console.log(project_id +": ")
-                console.log(hash_data)
-                console.log(hash_data['targets'])
-                const mastery = new Mastery(hash_data)
-                const category = mastery.process();
-                const score = document.createElement("a")
-                // console.log(project_id);
-                // console.log(mastery.mastery_dicc)
-                score.className = 'ctscore';
-                score.innerText = category ? "CTScore: " + mastery.mastery_dicc['CTScore'] : "Not supported";
-                score.style.color = "#0fbd8c"
-                thumbnail_project[i].style.height = "223px";
-                thumbnail_creator[i].insertAdjacentElement("afterend", score);
+                if(thumbnail_title[i].childElementCount === 2) createCTElement(i);
             }, false)
         }, false);
     }
 }
 
+//もっと見るボタンが押された時に再計算
+button.addEventListener("click", () => {
+  window.setTimeout(indicateCT, 1000);
+}, false)
 
-
+//検索した時にCTスコアを表示
 if(thumbnail) {
     const new_option = document.createElement("option")
     new_option.innerText = 'CTスコア'
     selector[0].insertBefore(new_option, option)
-    getCT()
+    indicateCT()
 }
 
 class Mastery {
@@ -106,7 +102,7 @@ class Mastery {
       }
     }
     this.analyze()
-    return true
+    return ([true, this.mastery_dicc['CTScore']])
   }
 
   analyze() {
