@@ -1,78 +1,121 @@
-const thumbnail_creator = document.getElementsByClassName("thumbnail-creator");
-const thumbnail_project = document.getElementsByClassName("thumbnail project");
-const thumbnail_title = document.getElementsByClassName("thumbnail-title");
-const thumbnail = document.getElementsByClassName("thumbnail-image");
-const selector = document.getElementsByClassName("form-control");
-const option = document.querySelector("#frc-sort-1088 > option:nth-child(1)")
-const button = document.querySelector("#projectBox > button")
+const thumbnail_title = document.getElementsByClassName('thumbnail-title')
+const thumbnail = document.getElementsByClassName('thumbnail-image')
+const button = document.querySelector('#projectBox > button')
 
-//対応していない作品のHTML要素を作成・表示する関数
-const createErrorElement = (index) => {
-  const score = document.createElement("a")
-  score.innerText = "Not supported"
-  score.style.color = "#FF9933"
-  thumbnail_project[index].style.height = "223px";
-  thumbnail_creator[index].insertAdjacentElement("afterend", score)
+//新たなHTML要素を作成
+const createNewElement = ({ type, text, color }) => {
+  const element = document.createElement(type)
+  element.innerText = text
+  element.style.color = color
+
+  return element
 }
 
-//CTスコアを表示するHTML要素を作成・表示する関数
-const createCTElement = (index, hash_data) => {
-    const mastery = new Mastery(hash_data)
-    const [isAvailable, ctscore] = mastery.process();
-    console.log(isAvailable);
-    if(isAvailable) {
-      const score = document.createElement("a")
-      score.className = 'ctscore';
-      score.innerText = "CTScore: " + ctscore;
-      score.style.color = "#0fbd8c"
-      thumbnail_project[index].style.height = "223px";
-      thumbnail_creator[index].insertAdjacentElement("afterend", score);
-    } else {
-      if(thumbnail_title[index].childElementCount === 2) createErrorElement(index)
+//HTML要素を表示
+const displayElement = ({ index, element }) => {
+  const thumbnail_project = document.getElementsByClassName('thumbnail project')
+  const thumbnail_creator = document.getElementsByClassName('thumbnail-creator')
+  thumbnail_project[index].style.height = '223px'
+  thumbnail_creator[index].insertAdjacentElement('afterend', element)
+}
+
+//CTスコアを取得
+const getScore = (data) => {
+  const mastery = new Mastery(data)
+  return mastery.process()
+}
+
+//対応していない作品のHTML要素を生成
+const generateErrorElement = (index) => {
+  const errorElement = createNewElement({
+    type: 'a',
+    text: 'Not supported',
+    color: '#FF9933',
+  })
+  displayElement({
+    index: index,
+    element: errorElement,
+  })
+}
+
+//CTスコアを表示するHTML要素を生成
+const generateScoreElement = (data, index) => {
+  const [isAvailable, ctscore] = getScore(data)
+  if (isAvailable) {
+    const scoreElement = createNewElement({
+      type: 'a',
+      text: 'Score: ' + ctscore,
+      color: '#0fbd8c',
+    })
+    displayElement({
+      index: index,
+      element: scoreElement,
+    })
+  } else {
+    if (thumbnail_title[index].childElementCount === 2)
+      generateErrorElement(index)
+  }
+}
+
+//作品のJSONを取得
+const getProject = (data, i) => {
+  fetchApi(
+    `https://projects.scratch.mit.edu/${data['id']}?token=${data['project_token']}`,
+    generateScoreElement,
+    i
+  )
+}
+
+//APIを叩く
+const fetchApi = (URL, callback, i) => {
+  const req = new XMLHttpRequest()
+  req.open('GET', URL)
+  req.send()
+  req.addEventListener(
+    'load',
+    () => {
+      try {
+        const json_data = JSON.parse(req.response)
+        callback(json_data, i)
+      } catch (error) {
+        if (thumbnail_title[i].childElementCount === 2) generateErrorElement(i)
+      }
+    },
+    false
+  )
+}
+
+//CTスコアを表示
+const main = () => {
+  for (let i = 0; i < thumbnail.length; i++) {
+    const project_id = thumbnail[i].href.replace(/[^0-9]/g, '')
+    if (thumbnail_title[i].childElementCount === 2) {
+      fetchApi(
+        `https://api.scratch.mit.edu/projects/${project_id}`,
+        getProject,
+        i
+      )
     }
- }
-
-//CTスコアを表示する関数
-const indicateCT = () => {
-    for(let i = 0; i < thumbnail.length; i++) {
-        const project_id = thumbnail[i].href.replace(/[^0-9]/g, '');
-        const req = new XMLHttpRequest();
-        let hash_data
-        if(thumbnail_title[i].childElementCount === 2) {
-          req.open("GET", `https://api.scratch.mit.edu/projects/${project_id}`);
-          req.send();
-          req.addEventListener("load", function(){
-            hash_json = JSON.parse(req.response)
-            const req2 = new XMLHttpRequest()
-            req2.open("GET", `https://projects.scratch.mit.edu/${project_id}?token=${hash_json['project_token']}`)
-            req2.send()
-            req2.addEventListener("load", function() {
-              try {
-                hash_data = JSON.parse(req2.response)
-              } catch (error){
-                if(thumbnail_title[i].childElementCount === 2) createErrorElement(i)
-              }
-              createCTElement(i, hash_data);
-            }, false)
-          }, false);
-        }
-    }
+  }
 }
 
-//もっと見るボタンが押された時に再計算
-button.addEventListener("click", () => {
-  window.setTimeout(indicateCT, 1000);
-}, false)
-
-//検索した時にCTスコアを表示
-if(thumbnail) {
-    const new_option = document.createElement("option")
-    new_option.innerText = 'CTスコア'
-    selector[0].insertBefore(new_option, option)
-    indicateCT()
+//検索した時にスコアを表示
+if (thumbnail) {
+  main()
 }
 
-//Dr.Scratch
+//もっと見るボタンが押された時にスコア再表示
+if (button) {
+  button.addEventListener(
+    'click',
+    () => {
+      window.setTimeout(main, 1000)
+    },
+    false
+  )
+}
+
+//Dr.Scratchプログラム
 class Mastery {
   constructor(json_data) {
     this.mastery_dicc = {}
@@ -93,7 +136,7 @@ class Mastery {
   process() {
     const data = this.json_data
 
-    if ('variables' in data) return ([false])
+    // if ('variables' in data) return [false]
 
     for (const key in data) {
       if (key === 'targets') {
@@ -111,7 +154,7 @@ class Mastery {
             }
           }
         }
-      }
+      } else if (key === 'variables') return [false, 0]
     }
 
     for (let i = 0; i < this.total_blocks.length; i++) {
@@ -124,7 +167,7 @@ class Mastery {
       }
     }
     this.analyze()
-    return ([true, this.mastery_dicc['CTScore']])
+    return [true, this.mastery_dicc['CTScore']]
   }
 
   analyze() {
@@ -159,7 +202,6 @@ class Mastery {
         if (this.mastery_dicc[concept][score]) total += score
       }
     }
-    console.log(this.mastery_dicc)
     this.mastery_dicc['Total'] = total
   }
 
@@ -172,7 +214,7 @@ class Mastery {
       if (this.blocks_dicc[operation]) {
         this.mastery_dicc['Logic'][3] = true
       }
-    })   
+    })
 
     // 2点の計測処理
     if (this.blocks_dicc['control_if_else']) {
@@ -489,7 +531,7 @@ class Mastery {
             if (key === varr) count++
           })
         })
-        if(count > 1) this.mastery_dicc['Parallelism'][3] = true
+        if (count > 1) this.mastery_dicc['Parallelism'][3] = true
       }
     } else if (this.blocks_dicc['event_whenbackdropswitchesto'] > 1) {
       if (dict_parall['BACKDROP']) {
@@ -500,7 +542,7 @@ class Mastery {
             if (key === varr) count++
           })
         })
-        if(count > 1) this.mastery_dicc['Parallelism'][3] = true
+        if (count > 1) this.mastery_dicc['Parallelism'][3] = true
       }
     } else if (this.blocks_dicc['event_whengreaterthan'] > 1) {
       if (dict_parall['WHENGREATERTHANMENU']) {
@@ -511,16 +553,14 @@ class Mastery {
             if (key === varr) count++
           })
         })
-        if(count > 1) this.mastery_dicc['Parallelism'][3] = true
+        if (count > 1) this.mastery_dicc['Parallelism'][3] = true
       }
     } else if (this.blocks_dicc['videoSensing_whenMotionGreaterThan'] > 1) {
       this.mastery_dicc['Parallelism'][3] = true
     }
 
-
     // 2点の計測処理
     if (this.blocks_dicc['event_whenkeypressed'] > 1) {
-      console.log(dict_parall['KEY_OPTION'])
       if (dict_parall['KEY_OPTION']) {
         const var_list = new Set(dict_parall['KEY_OPTION'])
         let count = 0
@@ -529,7 +569,7 @@ class Mastery {
             if (key === varr) count++
           })
         })
-        if(count > 1) this.mastery_dicc['Parallelism'][2] = true
+        if (count > 1) this.mastery_dicc['Parallelism'][2] = true
       }
     }
 

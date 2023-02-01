@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "main": "node src/main.js",
-    "lint": "eslint -c .eslintrc.json ./src/drscratch.js",
-    "format": "prettier -w .prettierrc.json ./src/drscratch.js",
+    "lint": "eslint -c .eslintrc.json ./src/scratch.js",
+    "format": "prettier -w .prettierrc.json ./src/viewer.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

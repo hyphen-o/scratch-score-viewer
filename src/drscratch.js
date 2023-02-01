@@ -53,7 +53,7 @@ export class Mastery {
       }
     }
     this.analyze()
-    return ([true, this.mastery_dicc['CTScore']])
+    return [true, this.mastery_dicc['CTScore']]
   }
 
   analyze() {
@@ -101,7 +101,7 @@ export class Mastery {
       if (this.blocks_dicc[operation]) {
         this.mastery_dicc['Logic'][3] = true
       }
-    })   
+    })
 
     // 2点の計測処理
     if (this.blocks_dicc['control_if_else']) {
@@ -418,7 +418,7 @@ export class Mastery {
             if (key === varr) count++
           })
         })
-        if(count > 1) this.mastery_dicc['Parallelism'][3] = true
+        if (count > 1) this.mastery_dicc['Parallelism'][3] = true
       }
     } else if (this.blocks_dicc['event_whenbackdropswitchesto'] > 1) {
       if (dict_parall['BACKDROP']) {
@@ -429,7 +429,7 @@ export class Mastery {
             if (key === varr) count++
           })
         })
-        if(count > 1) this.mastery_dicc['Parallelism'][3] = true
+        if (count > 1) this.mastery_dicc['Parallelism'][3] = true
       }
     } else if (this.blocks_dicc['event_whengreaterthan'] > 1) {
       if (dict_parall['WHENGREATERTHANMENU']) {
@@ -440,12 +440,11 @@ export class Mastery {
             if (key === varr) count++
           })
         })
-        if(count > 1) this.mastery_dicc['Parallelism'][3] = true
+        if (count > 1) this.mastery_dicc['Parallelism'][3] = true
       }
     } else if (this.blocks_dicc['videoSensing_whenMotionGreaterThan'] > 1) {
       this.mastery_dicc['Parallelism'][3] = true
     }
-
 
     // 2点の計測処理
     if (this.blocks_dicc['event_whenkeypressed'] > 1) {
@@ -458,7 +457,7 @@ export class Mastery {
             if (key === varr) count++
           })
         })
-        if(count > 1) this.mastery_dicc['Parallelism'][2] = true
+        if (count > 1) this.mastery_dicc['Parallelism'][2] = true
       }
     }
 
