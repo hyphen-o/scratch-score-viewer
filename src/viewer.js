@@ -42,9 +42,10 @@ const generateErrorElement = (index) => {
 const generateScoreElement = (data, index) => {
   const [isAvailable, ctscore] = getScore(data)
   if (isAvailable) {
+    if(ctscore === 0) console.log(isAvailable);
     const scoreElement = createNewElement({
       type: 'a',
-      text: 'Score: ' + ctscore,
+      text: 'Score: ' + ctscore + '/21',
       color: '#0fbd8c',
     })
     displayElement({
@@ -58,16 +59,16 @@ const generateScoreElement = (data, index) => {
 }
 
 //作品のJSONを取得
-const getProject = (data, i) => {
+const getProject = (data, index) => {
   fetchApi(
     `https://projects.scratch.mit.edu/${data['id']}?token=${data['project_token']}`,
     generateScoreElement,
-    i
+    index
   )
 }
 
 //APIを叩く
-const fetchApi = (URL, callback, i) => {
+const fetchApi = (URL, callback, index) => {
   const req = new XMLHttpRequest()
   req.open('GET', URL)
   req.send()
@@ -76,9 +77,9 @@ const fetchApi = (URL, callback, i) => {
     () => {
       try {
         const json_data = JSON.parse(req.response)
-        callback(json_data, i)
+        callback(json_data, index)
       } catch (error) {
-        if (thumbnail_title[i].childElementCount === 2) generateErrorElement(i)
+        if (thumbnail_title[index].childElementCount === 2) generateErrorElement(index)
       }
     },
     false
@@ -136,8 +137,6 @@ class Mastery {
   process() {
     const data = this.json_data
 
-    // if ('variables' in data) return [false]
-
     for (const key in data) {
       if (key === 'targets') {
         for (const dicc in data[key]) {
@@ -154,7 +153,7 @@ class Mastery {
             }
           }
         }
-      } else if (key === 'variables') return [false, 0]
+      } else if(key === 'children') return [false, 0]
     }
 
     for (let i = 0; i < this.total_blocks.length; i++) {

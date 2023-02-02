@@ -22,8 +22,6 @@ export class Mastery {
   process() {
     const data = this.json_data
 
-    if ('variables' in data) return false
-
     for (const key in data) {
       if (key === 'targets') {
         for (const dicc in data[key]) {
@@ -40,7 +38,7 @@ export class Mastery {
             }
           }
         }
-      }
+      } else if (key === 'variables') return [false, 0]
     }
 
     for (let i = 0; i < this.total_blocks.length; i++) {
@@ -88,7 +86,6 @@ export class Mastery {
         if (this.mastery_dicc[concept][score]) total += score
       }
     }
-    console.log(this.mastery_dicc)
     this.mastery_dicc['Total'] = total
   }
 
@@ -448,7 +445,6 @@ export class Mastery {
 
     // 2点の計測処理
     if (this.blocks_dicc['event_whenkeypressed'] > 1) {
-      console.log(dict_parall['KEY_OPTION'])
       if (dict_parall['KEY_OPTION']) {
         const var_list = new Set(dict_parall['KEY_OPTION'])
         let count = 0
