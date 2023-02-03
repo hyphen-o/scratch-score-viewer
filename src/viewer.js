@@ -22,6 +22,7 @@ const displayElement = ({ index, element }) => {
 //CTスコアを取得
 const getScore = (data) => {
   const mastery = new Mastery(data)
+  
   return mastery.process()
 }
 
