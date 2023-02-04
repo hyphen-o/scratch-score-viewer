@@ -16,7 +16,7 @@
     "content_scripts": [
         {
             "js": [
-                "src/loader.js"
+                "loader/searchLoader.js"
             ],
             "matches": [
                 "https://scratch.mit.edu/search/*"
@@ -24,7 +24,7 @@
         },
         {
             "js": [
-                "src/mypage.js"
+                "loader/mypageLoader.js"
             ],
             "matches": [
                 "https://scratch.mit.edu/mystuff/"
@@ -34,8 +34,9 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "src/viewer.js",
-                "src/drscratch.js"
+                "src/search.js",
+                "src/drscratch.js",
+                "src/mypage.js"
             ],
             "matches": [
                 "<all_urls>"
