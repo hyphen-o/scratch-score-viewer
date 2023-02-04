@@ -16,12 +16,29 @@
     "content_scripts": [
         {
             "js": [
-                "src/viewer.js"
+                "src/loader.js"
             ],
             "matches": [
-                "https://developer.chrome.com/docs/extensions/*",
-                "https://developer.chrome.com/docs/webstore/*",
                 "https://scratch.mit.edu/search/*"
+            ]
+        },
+        {
+            "js": [
+                "src/mypage.js"
+            ],
+            "matches": [
+                "https://scratch.mit.edu/mystuff/"
+            ]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "src/viewer.js",
+                "src/drscratch.js"
+            ],
+            "matches": [
+                "<all_urls>"
             ]
         }
     ],

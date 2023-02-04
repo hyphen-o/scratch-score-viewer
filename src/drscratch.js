@@ -17,6 +17,7 @@ export class Mastery {
       'DataRepresentation',
     ]
     this.json_data = json_data
+    this.sb2flag = false
   }
 
   process() {
@@ -38,7 +39,30 @@ export class Mastery {
             }
           }
         }
-      } else if (key === 'variables') return [false, 0]
+      } else if (key === 'children') {
+        for (const dicc in data[key]) {
+          const value = data[key][dicc]
+          for (const dicc_key in value) {
+            if (dicc_key === 'scripts') {
+              for (let i = 0; i < value[dicc_key].length; i++) {
+                for (let j = 0; j < value[dicc_key][i][2].length; j++) {
+                  this.sb2flag = true
+                  const dicc_value = value[dicc_key][i][2][j]
+                  this.total_blocks.push({
+                    opcode: blocknames[dicc_value[0]],
+                    next: null,
+                    parent: null,
+                    inputs: null,
+                    fields: null, //未実装
+                    shadow: false,
+                    topLevel: false,
+                  })
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     for (let i = 0; i < this.total_blocks.length; i++) {
@@ -51,7 +75,7 @@ export class Mastery {
       }
     }
     this.analyze()
-    return [true, this.mastery_dicc['CTScore']]
+    return [true, this.mastery_dicc['CTScore'] + (this.sb2flag ? '*' : '')]
   }
 
   analyze() {
@@ -314,21 +338,37 @@ export class Mastery {
   }
 
   check_mouse() {
-    for (let i = 0; i < this.total_blocks.length; i++) {
-      const block = this.total_blocks[i]
-      for (const key in block) {
-        if (key === 'fields') {
-          for (const mouse_key in block) {
-            if (
-              (mouse_key === 'TO' || mouse_key === 'TOUCHINGOBJECTMENU') &&
-              block[mouse_key][0] === '_mouse_'
-            ) {
-              return 1
+    // if(!this.sb2flag) {
+      for (let i = 0; i < this.total_blocks.length; i++) {
+        const block = this.total_blocks[i]
+        for (const key in block) {
+          if (key === 'fields') {
+            for (const mouse_key in block) {
+              if (
+                (mouse_key === 'TO' || mouse_key === 'TOUCHINGOBJECTMENU') &&
+                block[mouse_key][0] === '_mouse_'
+                ) {
+                  return 1
+                }
+              }
             }
           }
         }
-      }
-    }
+    // else {
+    //   for (let i = 0; i < this.total_blocks.length; i++) {
+    //     const block = this.total_blocks[i]
+    //     for (const key in block) {
+    //       if (key === 'fields') {
+    //         console.log(block[key])
+    //           if (
+    //             block[key] && block[key] === '_mouse_'
+    //             ) {
+    //               return 1
+    //             }
+    //           }
+    //       }
+    //     }
+    // }
     return 0
   }
 
@@ -477,22 +517,174 @@ export class Mastery {
 
   parallelism_dict() {
     let dicc = {}
-
-    for (let i = 0; i < this.total_blocks.length; i++) {
-      const block = this.total_blocks[i]
-      for (const key in block) {
-        if (key === 'fields') {
-          for (const key_pressed in block[key]) {
-            if (dicc[key_pressed]) {
-              dicc[key_pressed].push(block[key][key_pressed][0])
-            } else {
-              dicc[key_pressed] = block[key][key_pressed]
+    // if(!this.sb2flag) {
+      for (let i = 0; i < this.total_blocks.length; i++) {
+        const block = this.total_blocks[i]
+        for (const key in block) {
+          if (key === 'fields') {
+            for (const key_pressed in block[key]) {
+              if (dicc[key_pressed]) {
+                dicc[key_pressed].push(block[key][key_pressed][0])
+              } else {
+                dicc[key_pressed] = block[key][key_pressed]
+              }
             }
           }
         }
       }
-    }
+    // } else {
+    //   for (let i = 0; i < this.total_blocks.length; i++) {
+    //     const block = this.total_blocks[i]
+    //     for (const key in block) {
+    //       if (key === 'fields') {
+    //           if (dicc[block[key]]) {
+    //             console.log(block[key])
+    //             dicc[block[key]].push(block[key][key_pressed][0])
+    //           } else {
+    //             console.log(block[key])
+    //             dicc[key_pressed] = block[key][key_pressed]
+    //           }
+    //       }
+    //     }
+    //   }
+    // }
 
     return dicc
   }
+}
+
+const blocknames = {
+  "forward:": "motion_movesteps",
+  "turnRight:": "motion_turnright",
+  "turnLeft:": "motion_turnleft",
+  "heading:": "motion_pointindirection",
+  "pointTowards:": "motion_pointtowards",
+  "gotoX:y:": "motion_gotoxy",
+  "glideSecs:toX:y:elapsed:from:": "motion_glidesecstoxy",
+  "gotoSpriteOrMouse:": "motion_goto",
+  "changeXposBy:": "motion_changexby",
+  "xpos:": "motion_setx",
+  "changeYposBy:": "motion_changeyby",
+  "ypos:": "motion_sety",
+  "bounceOffEdge": "motion_ifonedgebounce",
+  "setRotationStyle": "motion_setrotationstyle",
+  "xpos": "motion_xposition",
+  "ypos": "motion_yposition",
+  "heading": "motion_direction",
+  "say:duration:elapsed:from:": "looks_sayforsecs",
+  "say:": "looks_say",
+  "think:duration:elapsed:from:": "looks_thinkforsecs",
+  "think:": "looks_think",
+  "show": "looks_show",
+  "hide": "looks_hide",
+  "lookLike:": "looks_costume",
+  "nextCostume": "looks_nextcostume",
+  "startScene": "looks_backdrops",
+  "changeGraphicEffect:by:": "looks_changeeffectby",
+  "setGraphicEffect:to:": "looks_seteffectto",
+  "filterReset": "looks_cleargraphiceffects",
+  "changeSizeBy:": "looks_changesizeby",
+  "setSizeTo:": "looks_setsizeto",
+  "comeToFront": "looks_gotofrontback",
+  "goBackByLayers:": "looks_goforwardbackwardlayers",
+  "costumeIndex": "looks_costumenumbername",
+  "playSound:": "sound_play",
+  "doPlaySoundAndWait": "sound_playuntildone",
+  "stopAllSounds": "sound_stopallsounds",
+  "playDrum": "music_playDrumForBeats",
+  "rest:elapsed:from:": "music_restForBeats",
+  "noteOn:duration:elapsed:from:": "music_playNoteForBeats",
+  "instrument:": "music_setInstrument",
+  "changeVolumeBy:": "sound_changevolumeby",
+  "setVolumeTo:": "sound_setvolumeto",
+  "volume": "sound_volume",
+  "changeTempoBy:": "music_changeTempo",
+  "setTempoTo:": "music_setTempo",
+  "clearPenTrails": "pen_clear",
+  "stampCostume": "pen_stamp",
+  "putPenDown": "pen_penDown",
+  "penColor:": "pen_setPenColorToColor",
+  "putPenUp": "pen_penUp",
+  "changePenHueBy:": "pen_changePenHueBy",
+  "setPenHueTo:": "pen_setPenHueToNumber",
+  "changePenShadeBy:": "pen_changePenShadeBy",
+  "changePenSizeBy:": "pen_changePenSizeBy",
+  "penSize:": "pen_setPenSizeTo",
+  "setVar:to:": "data_setvariableto",
+  "changeVar:by:": "data_changevariableby",
+  "showVariable:": "pendata_showvariable",
+  "hideVariable:": "data_hidevariable",
+  "whenGreenFlag": "event_whenflagclicked",
+  "whenKeyPressed": "event_whenkeypressed",
+  "whenClicked": "event_whenkeypressed",
+  "whenSceneStarts": "event_whenbackdropswitchesto",
+  "whenSensorGreaterThan": "event_whengreaterthan",
+  "whenIReceive": "event_whenbroadcastreceived",
+  "broadcast:": "event_broadcast",
+  "doBroadcastAndWait": "event_broadcastandwait",
+  "wait:elapsed:from:": "control_wait",
+  "doRepeat": "control_repeat",
+  "doForever": "control_forever",
+  "doIf": "control_if",
+  "doIfElse": "control_if_else",
+  "doUntil": "control_repeat_until",
+  "doWaitUntil": "control_wait_until",
+  "whenCloned": "control_start_as_clone",
+  "createCloneOf": "control_create_clone_of",
+  "deleteClone": "control_delete_this_clone",
+  "sceneName": "looks_backdropnumbername",
+  "scale": "looks_size",
+  "touching:": "sensing_touchingobject",
+  "color:sees:": "sensing_coloristouchingcolor",
+  "doAsk": "sensing_askandwait",
+  "answer": "sensing_answer",
+  "keyPressed:": "sensing_keypressed",
+  "mousePressed": "sensing_mousedown",
+  "mouseX": "sensing_mousex",
+  "mouseY": "sensing_mousey",
+  "senseVideoMotion": "videoSensing_videoOn",
+  "setVideoTransparency": "videoSensing_setVideoTransparency",
+  "timerReset": "sensing_resettimer",
+  "getAttribute:of:": "videoSensing_menu_ATTRIBUTE",
+  "timeAndDate": "sensing_current",
+  "timestamp": "sensing_dayssince2000",
+  "getUserName": "sensing_username",
+  "setVideoState": "videoSensing_menu_VIDEO_STATE",
+  "distanceTo:": "sensing_distanceto",
+  "touchingColor:": "sensing_touchingcolor",
+  "soundLevel": "sensing_loudness",
+  "+": "operator_add",
+  "-": "operator_subtract",
+  "*": "operator_multiply",
+  "/": "operator_divide",
+  "randomFrom:to:": "operator_random",
+  "<": "operator_lt",
+  "=": "operator_equals",
+  ">": "operator_gt",
+  "&": "operator_and",
+  "|": "operator_or",
+  "not": "operator_not",
+  "concatenate:with:": "operator_join",
+  "letter:of:": "operator_letter_of",
+  "stringLength:": "operator_length",
+  "%": "operator_mod",
+  "rounded": "operator_round",
+  "computeFunction:of:": "operator_mathop",
+  "getParam": "argument_reporter_string_number",
+  "call": "procedures_call",
+  "procDef": "procedures_definition",
+  "contentsOfList:": "data_listcontainsitem",
+  "append:toList:": "data_addtolist",
+  "deleteLine:ofList:": "data_deleteoflist",
+  "insert:at:ofList:": "data_insertatlist",
+  "setLine:ofList:to:": "data_replaceitemoflist",
+  "getLine:ofList:": "data_itemoflist",
+  "lineCountOfList:": "data_lengthoflist",
+  "list:contains:": "data_listcontainsitem",
+  "showList:": "data_showlist",
+  "hideList:": "wedo2_menu_OP",
+  "timer": "sensing_timer",
+  "stopScripts": "control_stop",
+  "tempo": "music_getTempo",
+  "setPenShadeTo:": "pen_setPenShadeToNumber",
 }
