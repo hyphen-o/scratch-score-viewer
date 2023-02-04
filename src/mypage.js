@@ -1,10 +1,15 @@
 import { Mastery } from "./drscratch.js" 
 
+const project_id = document.getElementsByClassName('media-control-edit small button grey');
+const media_thumb = document.getElementsByClassName('media-thumb');
+
 //新たなHTML要素を作成
 const createNewElement = ({ type, text, color }) => {
   const element = document.createElement(type)
   element.innerText = text
   element.style.color = color
+  element.style.display = 'block'
+  element.style.fontWeight = 'bold'
 
   return element
 }
@@ -16,29 +21,38 @@ const getScore = (data) => {
     return mastery.process()
 }
 
-const generate = (data) => {
+//HTML要素を表示
+const displayElement = ({ index, element }) => {
+    const media_info = document.getElementsByClassName('media-info')
+    media_info[index].insertAdjacentElement('afterend', element)
+  }
+
+const generateScoreElement = (data, index) => {
     const [isAvailable, ctscore] = getScore(data)
+    if(isAvailable) {
+        const scoreElement = createNewElement({
+            type: 'a',
+            text: 'Score: ' + ctscore + '/21',
+            color: '#0fbd8c',
+        })
+        displayElement({
+            index: index,
+            element: scoreElement,
+        })
+    }
     console.log(ctscore)
 }
 
-const getProject = (data) => {
+const getProject = (data, index) => {
     fetchApi(
       `https://projects.scratch.mit.edu/${data['id']}?token=${data['project_token']}`,
-      generate,
+      generateScoreElement,
+      index
     )
 }
 
-const practice = (data) => {
-    data.forEach((project) => {
-        fetchApi(
-        `https://api.scratch.mit.edu/projects/${project['id']}`,
-        getProject
-        )
-    })
-}
-
 //APIを叩く
-const fetchApi = (URL, callback) => {
+const fetchApi = (URL, callback, index) => {
   const req = new XMLHttpRequest()
   req.open('GET', URL)
   req.send()
@@ -47,7 +61,7 @@ const fetchApi = (URL, callback) => {
     () => {
       try {
         const json_data = JSON.parse(req.response)
-        callback(json_data)
+        callback(json_data, index)
       } catch (error) {
         console.log(error)
       }
@@ -58,15 +72,21 @@ const fetchApi = (URL, callback) => {
 
 //CTスコアを表示
 const main = () => {
-  const username = document.querySelector("#topnav > div > div > ul.account-nav.logged-in > li.logged-in-user.dropdown > span").textContent;
-  fetchApi(
-  `https://api.scratch.mit.edu/users/${username}/projects/`,
-  practice
-  )
+    for(let i = 0; i < project_id.length; i++) {
+        const id = project_id[i].href.replace(/[^0-9]/g, '')
+        fetchApi(
+            `https://api.scratch.mit.edu/projects/${id}`,
+            getProject,
+            i
+            )
+        console.log(id)
+    }
 }
 
 //検索した時にスコアを表示
-main()
+if(media_thumb) {
+    main()
+}
 
 
 
