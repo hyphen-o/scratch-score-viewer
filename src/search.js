@@ -103,9 +103,7 @@ const main = () => {
 }
 
 //検索した時にスコアを表示
-if (thumbnail) {
-  main()
-}
+window.onload = main()
 
 //もっと見るボタンが押された時にスコア再表示
 if (button) {

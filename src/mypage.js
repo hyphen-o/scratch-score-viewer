@@ -85,7 +85,7 @@ const main = () => {
 
 //検索した時にスコアを表示
 if(media_thumb) {
-    main()
+  main()
 }
 
 
