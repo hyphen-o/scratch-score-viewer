@@ -20,9 +20,70 @@ export class Mastery {
     this.sb2flag = false
   }
 
+  convertFieldname(dicc_value) {
+    switch(blocknames[dicc_value[0]]) {
+      case 'event_whenbroadcastreceived':
+        return {'BROADCAST_OPTION': [
+          dicc_value[1]
+        ]}
+      case 'event_whenbackdropswitchesto':
+        return {'BACKDROP': [
+          dicc_value[1]
+        ]}
+      case 'event_whengreaterthan':        
+        return {'WHENGREATERTHANMENU': [
+          dicc_value[1]
+        ]}
+      case 'event_whenkeypressed':
+        return {'KEY_OPTION': [
+          dicc_value[1]
+        ]}
+      case 'motion_goto':
+        return {'TO': [
+          dicc_value[1]
+        ]}
+      case 'sensing_touchingobject':
+        return {'TOUCHINGOBJECTMENU': [
+          dicc_value[1]
+        ]}
+      default:
+        return {'NULL': []}
+    } 
+  }
+  
+
+  controlScripts(dicc_value) {
+    for(let i = 0; i < dicc_value[1].length; i++) {
+      if(typeof(dicc_value[1][i][1]) === 'object' && dicc_value[1][i][1].length != 1) {
+        const field = this.convertFieldname(dicc_value[1][i])
+        this.total_blocks.push({
+          opcode: blocknames[dicc_value[1][i][0]],
+          next: null,
+          parent: null,
+          inputs: null,
+          fields: field, //未実装
+          shadow: false,
+          topLevel: false,
+        })
+        this.controlScripts(dicc_value[1][i])
+      }
+      else {
+        const field = this.convertFieldname(dicc_value[1][i])
+        this.total_blocks.push({
+          opcode: blocknames[dicc_value[1][i][0]],
+          next: null,
+          parent: null,
+          inputs: null,
+          fields: field, //未実装
+          shadow: false,
+          topLevel: false,
+        })
+      }
+    }
+  }
+
   process() {
     const data = this.json_data
-
     for (const key in data) {
       if (key === 'targets') {
         for (const dicc in data[key]) {
@@ -48,12 +109,18 @@ export class Mastery {
                 for (let j = 0; j < value[dicc_key][i][2].length; j++) {
                   this.sb2flag = true
                   const dicc_value = value[dicc_key][i][2][j]
+                  if(typeof(dicc_value[1]) === 'object') this.controlScripts(dicc_value)
+                  let parent_value = null
+                  if(j != 0) {
+                    parent_value = value[dicc_key][i][2][j - 1] 
+                  }
+                  const field = this.convertFieldname(dicc_value)
                   this.total_blocks.push({
                     opcode: blocknames[dicc_value[0]],
-                    next: null,
-                    parent: null,
+                    next: value[dicc_key][i][2].length > 1,
+                    parent: parent_value,
                     inputs: null,
-                    fields: null, //未実装
+                    fields: field, //未実装
                     shadow: false,
                     topLevel: false,
                   })
@@ -75,10 +142,12 @@ export class Mastery {
       }
     }
     this.analyze()
+    console.log(this.mastery_dicc)
     return [true, this.mastery_dicc['CTScore'] + (this.sb2flag ? '*' : '')]
   }
 
   analyze() {
+    console.log(this.total_blocks)
     this.logic()
     this.flow_control()
     this.synchronization()
@@ -338,7 +407,6 @@ export class Mastery {
   }
 
   check_mouse() {
-    // if(!this.sb2flag) {
       for (let i = 0; i < this.total_blocks.length; i++) {
         const block = this.total_blocks[i]
         for (const key in block) {
@@ -349,26 +417,11 @@ export class Mastery {
                 block[mouse_key][0] === '_mouse_'
                 ) {
                   return 1
-                }
               }
             }
-          }
+           }
         }
-    // else {
-    //   for (let i = 0; i < this.total_blocks.length; i++) {
-    //     const block = this.total_blocks[i]
-    //     for (const key in block) {
-    //       if (key === 'fields') {
-    //         console.log(block[key])
-    //           if (
-    //             block[key] && block[key] === '_mouse_'
-    //             ) {
-    //               return 1
-    //             }
-    //           }
-    //       }
-    //     }
-    // }
+      }
     return 0
   }
 
@@ -411,14 +464,14 @@ export class Mastery {
     })
 
     // 2点の計測処理
-    if (this.mastery_dicc['UserInteractivity'][2] == false) {
-      if (this.blocks_dicc['motion_goto_menu']) {
+    if (this.mastery_dicc['UserInteractivity'][2] === false) {
+      if (this.blocks_dicc['motion_goto_menu'] || (this.sb2flag && this.blocks_dicc['motion_goto'])) {
         if (this.check_mouse() === 1) {
           this.mastery_dicc['UserInteractivity'][2] = true
-        } else if (this.blocks_dicc['sensing_touchingobjectmenu']) {
-          if (this.check_mouse() == 1) {
-            this.mastery_dicc['UserInteractivity'][2] = true
-          }
+        }
+      } else if (this.blocks_dicc['sensing_touchingobjectmenu'] || (this.sb2flag && this.blocks_dicc['sensing_touchingobject'])) {
+        if (this.check_mouse() === 1) {
+          this.mastery_dicc['UserInteractivity'][2] = true
         }
       }
     }
@@ -616,7 +669,7 @@ const blocknames = {
   "hideVariable:": "data_hidevariable",
   "whenGreenFlag": "event_whenflagclicked",
   "whenKeyPressed": "event_whenkeypressed",
-  "whenClicked": "event_whenkeypressed",
+  "whenClicked": "event_whenthisspriteclicked",
   "whenSceneStarts": "event_whenbackdropswitchesto",
   "whenSensorGreaterThan": "event_whengreaterthan",
   "whenIReceive": "event_whenbroadcastreceived",
@@ -682,7 +735,7 @@ const blocknames = {
   "lineCountOfList:": "data_lengthoflist",
   "list:contains:": "data_listcontainsitem",
   "showList:": "data_showlist",
-  "hideList:": "wedo2_menu_OP",
+  "hideList:": "data_hidelist",
   "timer": "sensing_timer",
   "stopScripts": "control_stop",
   "tempo": "music_getTempo",

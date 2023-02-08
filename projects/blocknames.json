@@ -127,7 +127,7 @@
     "lineCountOfList:": "data_lengthoflist",
     "list:contains:": "data_listcontainsitem",
     "showList:": "data_showlist",
-    "hideList:": "wedo2_menu_OP",
+    "hideList:": "data_hidelist",
     "timer": "sensing_timer",
     "stopScripts": "control_stop",
     "tempo": "music_getTempo",
