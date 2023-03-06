@@ -143,11 +143,10 @@ export class Mastery {
     }
     this.analyze()
     console.log(this.mastery_dicc)
-    return [true, this.mastery_dicc['CTScore'] + (this.sb2flag ? '*' : '')]
+    return [true, this.mastery_dicc['CTScore']]
   }
 
   analyze() {
-    console.log(this.total_blocks)
     this.logic()
     this.flow_control()
     this.synchronization()
@@ -570,7 +569,6 @@ export class Mastery {
 
   parallelism_dict() {
     let dicc = {}
-    // if(!this.sb2flag) {
       for (let i = 0; i < this.total_blocks.length; i++) {
         const block = this.total_blocks[i]
         for (const key in block) {
@@ -585,22 +583,6 @@ export class Mastery {
           }
         }
       }
-    // } else {
-    //   for (let i = 0; i < this.total_blocks.length; i++) {
-    //     const block = this.total_blocks[i]
-    //     for (const key in block) {
-    //       if (key === 'fields') {
-    //           if (dicc[block[key]]) {
-    //             console.log(block[key])
-    //             dicc[block[key]].push(block[key][key_pressed][0])
-    //           } else {
-    //             console.log(block[key])
-    //             dicc[key_pressed] = block[key][key_pressed]
-    //           }
-    //       }
-    //     }
-    //   }
-    // }
 
     return dicc
   }
