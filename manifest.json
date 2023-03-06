@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Scratch's Score Viewer",
-    "description": "Displays the score of the searched Scratch works. Scratch上で作品検索した時に各作品のCTスコアが可視化される拡張機能",
+    "description": "Displays the score of the searched Scratch works. Scratch上で作品検索した時に各作品の点数（CTスコア）が可視化される拡張機能",
     "version": "1.0",
     "action": {
         "default_icon": "img/icon.png",
