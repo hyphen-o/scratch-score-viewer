@@ -5,7 +5,7 @@ Scratch 上で検索した作品の CT スコアを可視化するための Chro
 
 ## drScratch.js
 
-公開されている[Dr.Scratch の解析プログラム](https://github.com/AngelaVargas/drscratchv3)を Javascript に書き換えたプログラムです．
+公開されている[Dr.Scratch の解析プログラム](https://github.com/AngelaVargas/drscratchv3)を Javascript に書き換えて拡張したプログラムです．
 
 ## search.js
 
